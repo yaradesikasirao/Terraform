@@ -13,9 +13,13 @@ resource "aws_instance" "this" {
     user        = "ubuntu"
     private_key = file("~/.ssh/id_rsa")
     type        = "ssh"
-
+       
+       
   }
-
+    
+    depends_on = [
+      aws_security_group.sg4
+    ]
 
   provisioner "local-exec" {
     command = "echo hello , kasi >> private_ips.txt"
@@ -81,13 +85,11 @@ resource "aws_internet_gateway" "gw" {
 resource "aws_route_table" "rt" {
   vpc_id = aws_vpc.kasi4.id
 
-  route = []
-
-  tags = {
-    Name = "rt"
+  route {
+    cidr_block = "10.0.0.0/24"
+    gateway_id = aws_internet_gateway.gw.id
   }
 }
-
 
 
 resource "aws_route_table_association" "a" {
@@ -96,9 +98,5 @@ resource "aws_route_table_association" "a" {
 
 }
 
-resource "aws_route_table_association" "b" {
-  gateway_id     = aws_internet_gateway.gw.id
-  route_table_id = aws_route_table.rt.id
-}
 
 
